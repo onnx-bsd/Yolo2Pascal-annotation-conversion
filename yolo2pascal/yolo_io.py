@@ -101,9 +101,12 @@ class YoloReader:
         self.classes = classesFile.read().strip('\n').split('\n')
 
         # print (self.classes)
-
+        """
         imgSize = [image.height(), image.width(),
                       1 if image.isGrayscale() else 3]
+        """
+
+        imgSize = image.shape
 
         self.imgSize = imgSize
 

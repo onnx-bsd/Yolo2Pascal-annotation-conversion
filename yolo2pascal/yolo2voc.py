@@ -3,17 +3,20 @@ from pascal_voc_io import PascalVocWriter
 from yolo_io import YoloReader
 import os.path
 import sys
-
+import cv2
+"""
 try:
     from PyQt5.QtGui import QImage
 except ImportError:
     from PyQt4.QtGui import QImage
-
+"""
 
 imgFolderPath = sys.argv[1]
+yoloFolderPath = sys.argv[2]
+vocFolderPath = sys.argv[3]
 
 # Search all yolo annotation (txt files) in this folder
-for file in os.listdir(imgFolderPath):
+for file in os.listdir(yoloFolderPath):
     if file.endswith(".txt") and file != "classes.txt":
         print("Convert", file)
 
@@ -23,17 +26,24 @@ for file in os.listdir(imgFolderPath):
         if not os.path.isfile(imagePath):
             imagePath = imgFolderPath + "/" + annotation_no_txt + ".png"
 
+        """
         image = QImage()
         image.load(imagePath)
         imageShape = [image.height(), image.width(), 1 if image.isGrayscale() else 3]
         imgFolderName = os.path.basename(imgFolderPath)
         imgFileName = os.path.basename(imagePath)
+        """
 
+        image = cv2.imread(imagePath)
+        imageShape = image.shape  
+        imgFolderName = os.path.basename(imgFolderPath)
+        imgFileName = os.path.basename(imagePath)
+        
         writer = PascalVocWriter(imgFolderName, imgFileName, imageShape, localImgPath=imagePath)
 
 
         # Read YOLO file
-        txtPath = imgFolderPath + "/" + file
+        txtPath = yoloFolderPath + "/" + file
         tYoloParseReader = YoloReader(txtPath, image)
         shapes = tYoloParseReader.getShapes()
         num_of_box = len(shapes)
@@ -47,4 +57,4 @@ for file in os.listdir(imgFolderPath):
 
             writer.addBndBox(xmin, ymin, x_max, y_max, label, 0)
 
-        writer.save(targetFile= imgFolderPath + "/" + annotation_no_txt + ".xml")
+        writer.save(targetFile= vocFolderPath + "/" + annotation_no_txt + ".xml")
